@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<XmlFormationVariables xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <boardRows>2</boardRows>
+  <boardColumns>4</boardColumns>
+  <maxUnitsPerTeam>2</maxUnitsPerTeam>
+  <unitTypesCount>4</unitTypesCount>
+  <possibleFormationsCount>96</possibleFormationsCount>
+  <UCB1ObjectDataPath>Assets/XMLData/UCB1_2x4_2_of_4_fake.xml</UCB1ObjectDataPath>
+  <RegretMatchingObjectDataPath>Assets/XMLData/RM_2x4_2_of_4.xml</RegretMatchingObjectDataPath>
+</XmlFormationVariables>
