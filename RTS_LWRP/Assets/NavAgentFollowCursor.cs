@@ -5,20 +5,29 @@ using UnityEngine.AI;
 
 public class NavAgentFollowCursor : MonoBehaviour
 {
-    NavMeshAgent agent;
+    NavMeshAgent    agent;
+    Transform       cachedTransform;
+    Vector3         destination;
+   
+    
     // Start is called before the first frame update
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent           = GetComponent<NavMeshAgent>();
+        cachedTransform = transform;
+        StartCoroutine(FollowingCursor(1));
     }
-
-    // Update is called once per frame
+    
+    public void SetDestination(Vector3 target) => destination = target;
    
 
-    IEnumerator FollowingCursor()
+    IEnumerator FollowingCursor(float delta)
     {
-        //while()
-        yield return new WaitForSeconds(1);
+        while(true)
+        {
+            agent.destination = new Vector3(destination.x, cachedTransform.position.y, destination.z);
+            yield return new WaitForSeconds(delta);
+        }
     }
 
 

@@ -252,6 +252,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -573,6 +574,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -615,10 +617,35 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2318637208171402710, guid: f7d3f9e10edee44d598450714b86ef7a,
+    - target: {fileID: -4412658067114229510, guid: f7d3f9e10edee44d598450714b86ef7a,
         type: 3}
-      propertyPath: m_Name
-      value: MeleePrefab
+      propertyPath: transformToFace
+      value: 
+      objectReference: {fileID: 8895470669376073053}
+    - target: {fileID: -4412658067114229510, guid: f7d3f9e10edee44d598450714b86ef7a,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 1.2225628
+      objectReference: {fileID: 0}
+    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 2.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
+        type: 3}
+      propertyPath: m_Center.x
+      value: -0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 0.34
       objectReference: {fileID: 0}
     - target: {fileID: 2318637208171402699, guid: f7d3f9e10edee44d598450714b86ef7a,
         type: 3}
@@ -675,35 +702,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
+    - target: {fileID: 2318637208171402710, guid: f7d3f9e10edee44d598450714b86ef7a,
         type: 3}
-      propertyPath: m_Size.x
-      value: 1.2225628
-      objectReference: {fileID: 0}
-    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
-        type: 3}
-      propertyPath: m_Size.y
-      value: 2.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
-        type: 3}
-      propertyPath: m_Center.x
-      value: -0.33
-      objectReference: {fileID: 0}
-    - target: {fileID: 2318637208171402696, guid: f7d3f9e10edee44d598450714b86ef7a,
-        type: 3}
-      propertyPath: m_Center.y
-      value: 0.34
-      objectReference: {fileID: 0}
-    - target: {fileID: -4412658067114229510, guid: f7d3f9e10edee44d598450714b86ef7a,
-        type: 3}
-      propertyPath: transformToFace
-      value: 
-      objectReference: {fileID: 8895470669376073053}
-    - target: {fileID: -4412658067114229510, guid: f7d3f9e10edee44d598450714b86ef7a,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: m_Name
+      value: MeleePrefab
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2318637208171402697, guid: f7d3f9e10edee44d598450714b86ef7a, type: 3}

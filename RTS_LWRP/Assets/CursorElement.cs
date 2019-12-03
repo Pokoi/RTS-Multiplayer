@@ -6,14 +6,14 @@ using UnityEngine.AI;
 public class CursorElement : MonoBehaviour
 {
 
-    static  CursorElement   instance;
-    private NavMeshAgent    selfAgent;
-    private Transform       selfTransform;
-    public  Camera          cameraToRayCast;
+    public static   CursorElement   instance;    
+    private         Transform       selfTransform;
+    public          Camera          cameraToRayCast;
+    private         NavMeshAgent    selfAgent;
     
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (instance == null)
         {
@@ -23,14 +23,13 @@ public class CursorElement : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
-
-        selfAgent       = GetComponent<NavMeshAgent>();
+        
         selfTransform   = transform;
-
-        StartCoroutine(SetPosition(1.0f));
+        selfAgent       = GetComponent<NavMeshAgent>();
+        StartCoroutine(SetPosition(0.5f));
     }
 
-   
+    public Vector3 GetPosition() => selfTransform.position;
 
     IEnumerator SetPosition(float delta)
     {
@@ -40,10 +39,10 @@ public class CursorElement : MonoBehaviour
 
             if (Physics.Raycast(cameraToRayCast.ScreenPointToRay(Input.mousePosition), out hit, 100))
             {
-                selfAgent.destination = hit.point;
+                selfAgent.destination = new Vector3(hit.point.x, selfTransform.position.y, hit.point.z);
             }
 
-                yield return new WaitForSeconds(delta);
+            yield return new WaitForSeconds(delta);
         }
 
         
