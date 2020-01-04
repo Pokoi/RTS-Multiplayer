@@ -5,46 +5,33 @@ using UnityEngine.AI;
 
 public class CursorElement : MonoBehaviour
 {
-
-    public static   CursorElement   instance;    
     private         Transform       selfTransform;
-    public          Camera          cameraToRayCast;
     private         NavMeshAgent    selfAgent;
+    private         Vector3         destination;
     
 
     // Start is called before the first frame update
     void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-        
         selfTransform   = transform;
         selfAgent       = GetComponent<NavMeshAgent>();
-        //StartCoroutine(SetPosition(0.5f));
+        StartCoroutine(SetPosition(0.5f));
     }
 
     public Vector3 GetPosition() => selfTransform.position;
 
+    public void SetDestination(Vector3 target)
+    {
+        StopCoroutine("SetPosition");
+        destination = target;
+        StartCoroutine(SetPosition(0.5f));
+    }
     IEnumerator SetPosition(float delta)
     {
         while (true)
         {
-            RaycastHit hit;
-
-            if (Physics.Raycast(cameraToRayCast.ScreenPointToRay(Input.mousePosition), out hit, 100))
-            {
-                selfAgent.destination = new Vector3(hit.point.x, selfTransform.position.y, hit.point.z);
-            }
-
+            selfAgent.destination = new Vector3 (destination.x, selfTransform.position.y, destination.y);
             yield return new WaitForSeconds(delta);
         }
-
-        
     }
 }

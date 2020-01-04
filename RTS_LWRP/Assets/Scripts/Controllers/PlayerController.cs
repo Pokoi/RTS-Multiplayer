@@ -34,7 +34,8 @@ using System;
 
 public class PlayerController : MonoBehaviour
 {
-    public CursorElement playerCursor;
+    public CursorElement    playerCursor;
+    public CameraBehaviour  playerCamera;
 
     int             choosenFormationsCount;
     ArmyAction      playerFormation;
@@ -42,15 +43,23 @@ public class PlayerController : MonoBehaviour
     
     int[] formationCount = new int[Enum.GetNames(typeof(UnitType)).Length];
     
-    public void UpdateChoosenFormations(int value)   => choosenFormationsCount += value;
-    public void ResetChoosenUnits()                  => choosenFormationsCount = 0;
-    public int  GetChoosenFormationsCount()          => choosenFormationsCount;
-    public int[] GetFormationCount()                 => formationCount;
-    public CursorElement GetPlayerCursor()           => playerCursor;
-    public ArmyAction GetPlayerFormation()           => playerFormation;
+    public void UpdateChoosenFormations(int value)  => choosenFormationsCount += value;
+    public void ResetChoosenUnits()                 => choosenFormationsCount = 0;
+    public int  GetChoosenFormationsCount()         => choosenFormationsCount;
+    public int[] GetFormationCount()                => formationCount;
+    public CursorElement GetPlayerCursor()          => playerCursor;
+    public CameraBehaviour GetPlayerCamera()        => playerCamera;
+    public ArmyAction GetPlayerFormation()          => playerFormation;
     public ArmyAction SetPlayerFormation(ArmyAction formation)  => playerFormation = formation;
     public void UpdateFormationCount(int value, int index)      => formationCount[index] += value;
     public void SetTargetSoldiers(List<Soldier> soldiers) => targetSoldiers = soldiers;
+
+
+    public void OnUnitIsKilled(Soldier soldier)
+    {
+
+    }
+
 
     public void InitializeArmyAction()
     {
@@ -60,7 +69,7 @@ public class PlayerController : MonoBehaviour
         {
             if(formationCount[i] < 0)
             {
-                Formation formation = new Formation (GameController.Get().GetUnitsPerFormation());
+                ArmyFormation formation = new ArmyFormation (GameController.Get().GetUnitsPerFormation());
                 for(int j = 0; j < formationCount[i]; ++j)
                 {
                     formation.AddSoldier(GenerateUnit((UnitType) i));
@@ -79,4 +88,6 @@ public class PlayerController : MonoBehaviour
         
         return unit.GetComponent<Soldier>();
     }
+
+
 }

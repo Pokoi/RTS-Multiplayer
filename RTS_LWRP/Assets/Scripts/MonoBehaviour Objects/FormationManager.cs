@@ -32,27 +32,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FormationManager : MonoBehaviour
+public class FormationManager : Formation <NavAgentsFormation>
 {
-    public  List<NavAgentsFormation>  playerFormations   = new List<NavAgentsFormation>();
-    private List<Vector3>             formationsOffset   = new List<Vector3>();
-    private NavAgentsFormation        selectedFormation;
-    Vector3                           compositionCenter;
-
-    public void AddFormation    (NavAgentsFormation formation) => this.playerFormations.Add(formation);
-    public void RemoveFormation (NavAgentsFormation formation) => this.playerFormations.Remove(formation);
+    
+    public void AddFormation    (NavAgentsFormation formation) => this.formationUnits.Add(formation);
+    public void RemoveFormation (NavAgentsFormation formation) => this.formationUnits.Remove(formation);
     
     public void MoveFormationToPosition(int index, Vector3 position)
     {
-        playerFormations[index].CalculateCenter();
-        playerFormations[index].SetDestination(position);
+        if(!formationUnits[index].IsEmpty())
+        {
+            formationUnits[index].CalculateCenter();
+            formationUnits[index].SetDestination(position);
+        }
     }
 
     public void MoveAllFormationsToPosition(Vector3 position)
     {
         int iterator = 0;
         
-        foreach(NavAgentsFormation formation in playerFormations)
+        foreach(NavAgentsFormation formation in formationUnits)
         {
             formation.StopFormation();
             formation.CalculateCenter();
@@ -60,47 +59,78 @@ public class FormationManager : MonoBehaviour
 
         CalculateCenter();
 
-        compositionCenter = position;
+        centerFormation = position;
 
-        foreach(NavAgentsFormation formation in playerFormations)
+        foreach(NavAgentsFormation formation in formationUnits)
         {
-            formation.SetDestination(compositionCenter + formationsOffset[iterator]);
+            formation.SetDestination(centerFormation + unitsOffset[iterator]);
             ++iterator;
         }
     }
     
-    private void CalculateCenter()
+    public override void CalculateCenter()
     {
-        compositionCenter = Vector3.zero;
+        centerFormation = Vector3.zero;
 
-        foreach (NavAgentsFormation formation in playerFormations)
+        foreach (NavAgentsFormation formation in formationUnits)
         {
-            compositionCenter += formation.GetCenterFormation();
+            centerFormation += formation.GetCenterFormation();
         }
 
-        compositionCenter = new Vector3 (compositionCenter.x / playerFormations.Count, 0, compositionCenter.z / playerFormations.Count);
+        centerFormation = new Vector3 (centerFormation.x / formationUnits.Count, 0, centerFormation.z / formationUnits.Count);
 
-        foreach (NavAgentsFormation formation in playerFormations)
+        foreach (NavAgentsFormation formation in formationUnits)
         {
-            formationsOffset.Add(formation.GetCenterFormation() - compositionCenter);
+            unitsOffset.Add(formation.GetCenterFormation() - centerFormation);
         }
-
     }
-
+    public override void RegroupFormation()
+    {
+        radius = 5f;
+        int iterator = 0;
+        foreach(NavAgentsFormation formation in formationUnits)
+        {
+            formation.SetDestination(centerFormation + GetVertex(formationUnits.Count, iterator));
+            ++iterator;
+        }
+    }
+    public Vector3 GetCenterOfFormation(int index) => formationUnits[index].GetCenterFormation();
 }
 
-public class NavAgentsFormation
+public class NavAgentsFormation : Formation <NavAgentFollowCursor> 
 {
-    private  List<NavAgentFollowCursor> formationUnits  = new List<NavAgentFollowCursor>();
-    private  List<Vector3>              unitsOffset     = new List<Vector3>();
-    private  Vector3                    centerFormation;
-    private  float                      radius          = 1.5f;
-
-    public Vector3 GetCenterFormation() => centerFormation;
-
-    public void CalculateCenter()
+    public void SetDestination(Vector3 destination)
     {
+        centerFormation = CursorElement.instance.GetPosition();
+        int iterator    = 0;
 
+        foreach (NavAgentFollowCursor agent in formationUnits)
+        {
+            agent.SetDestination(centerFormation + unitsOffset[iterator]);
+            ++iterator;
+        }
+    }
+    public void StopFormation()
+    {
+        foreach (NavAgentFollowCursor agent in formationUnits)
+        {
+            agent.StopMovement();
+        }
+    }
+
+    public override void RegroupFormation()
+    {
+        radius = 1.5f;
+        int iterator = 0;
+        foreach(NavAgentFollowCursor agent in formationUnits)
+        {
+            agent.SetDestination(centerFormation + GetVertex(formationUnits.Count, iterator));
+            ++iterator;
+        }
+    }
+
+    public override void CalculateCenter()
+    {
         centerFormation = Vector3.zero;
 
         foreach (NavAgentFollowCursor agent in formationUnits)
@@ -115,38 +145,21 @@ public class NavAgentsFormation
             unitsOffset.Add(agent.transform.position - centerFormation);
         }
     }
+}
 
-    public void SetDestination(Vector3 destination)
-    {
-        centerFormation = CursorElement.instance.GetPosition();
-        int iterator    = 0;
+public abstract class Formation <T>
+{
+    protected List <T>        formationUnits  = new List<T>();
+    protected List <Vector3>  unitsOffset     = new List<Vector3>();
+    protected Vector3         centerFormation;
+    protected float           radius;
 
-        foreach (NavAgentFollowCursor agent in formationUnits)
-        {
-            agent.SetDestination(centerFormation + unitsOffset[iterator]);
-            ++iterator;
-        }
-    }
+    public Vector3  GetCenterFormation() => centerFormation; 
+    public bool     IsEmpty()            => formationUnits.Count == 0;
+    public abstract void CalculateCenter();
+    public abstract void RegroupFormation();
 
-    public void StopFormation()
-    {
-        foreach (NavAgentFollowCursor agent in formationUnits)
-        {
-            agent.StopMovement();
-        }
-    }
-
-    public void RegroupFormation()
-    {
-        int iterator = 0;
-        foreach(NavAgentFollowCursor agent in formationUnits)
-        {
-            agent.SetDestination(centerFormation + GetVertex(formationUnits.Count, iterator));
-            ++iterator;
-        }
-    }
-
-    private Vector3 GetVertex(int totalCount, int index)
+    protected Vector3 GetVertex (int totalCount, int index)
     {
         float pi2 = 6.283185f;
 
@@ -156,9 +169,4 @@ public class NavAgentsFormation
                                 0
                             );
     }
-}
-
-public class Formation
-{
-    
 }
