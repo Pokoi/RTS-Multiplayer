@@ -33,16 +33,18 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public CameraBehaviour  cameraBehaviour;
-    public UnitsPool        unitsPool;
-    public List <PlayerController> playerControllers;
-    public ScoreController  scoreController;
+    public UnitsPool                unitsPool;
+    public List <PlayerController>  playerControllers;
+    public ScoreController          scoreController;
+    public GameObject               decideFormationCanvas;
+    public List<Transform>          originPoints;
 
-    static GameController   instance;
+    static GameController           instance;
 
     bool        callToEnd;
     int         unitsPerFormation   = 4;
     int         formationsPerPlayer = 3;
+    int         callsToStart        = 0;
 
     public static GameController Get()      => instance;
     public int  GetUnitsPerFormation()      => unitsPerFormation;
@@ -73,12 +75,11 @@ public class GameController : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        unitsPool.SetMaxUnitsCount(unitsPerFormation * formationsPerPlayer);
+        unitsPool.SetMaxUnitsCount(unitsPerFormation * formationsPerPlayer * playerControllers.Count);
     }
 
     private void Start() 
     {
-         
     }
 
     public void OnPlayerDecideFormation()
@@ -90,15 +91,23 @@ public class GameController : MonoBehaviour
         }
 
         //Show canvas of decide formation
+        decideFormationCanvas.SetActive(true);
         
     }
 
     public void OnStartBattle()
     {
-        callToEnd = false;
-        InitializePlayerControllersTargetSoldiers();
-        
-        // Center each camera in each player
+        ++callsToStart;
+        if(callsToStart >= playerControllers.Count)
+        {
+            callToEnd = false;
+
+            InitializePlayerControllersTargetSoldiers();
+            
+            decideFormationCanvas.SetActive(false);
+
+            InitializeUnitsPositionsInWorld();
+        }
         
     }
 
@@ -123,18 +132,28 @@ public class GameController : MonoBehaviour
             {
                 if(playerControllers[i] != playerControllers[j])
                 {
-                    foreach (Formation formation in playerControllers[j].GetPlayerFormation().GetFormations())
-                    {
-                        foreach(Soldier soldier in formation.GetSoldiers())
-                        {
-                            soldiers.Add(soldier);
-                        }
-                    }
-
+                    soldiers.AddRange(playerControllers[j].GetPlayerFormation().GetOwnSoldiers());
                 }
             }
             playerControllers[i].SetTargetSoldiers(soldiers);
         }
     }
+
+    private void InitializeUnitsPositionsInWorld()
+    {
+        int iterator = 0;
+        foreach(PlayerController playerController in playerControllers)
+        {
+            Vector3 point = originPoints[iterator].position;
+
+            FormationManager formationManager = playerController.GetFormationManager();
+            formationManager.RegroupEachFormation();
+            formationManager.SetCenterOfFormation(point);
+            formationManager.RegroupFormation();
+
+            ++iterator;
+        }
+    }
+
 
 }

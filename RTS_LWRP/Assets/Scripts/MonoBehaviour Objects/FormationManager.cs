@@ -86,7 +86,7 @@ public class FormationManager : Formation <NavAgentsFormation>
     }
     public override void RegroupFormation()
     {
-        radius = 5f;
+        radius = 50f;
         int iterator = 0;
         foreach(NavAgentsFormation formation in formationUnits)
         {
@@ -95,13 +95,21 @@ public class FormationManager : Formation <NavAgentsFormation>
         }
     }
     public Vector3 GetCenterOfFormation(int index) => formationUnits[index].GetCenterFormation();
+    public void SetCenterOfFormation(Vector3 center) => centerFormation = center;
+    public void RegroupEachFormation()
+    {
+        foreach(NavAgentsFormation formation in formationUnits)
+        {
+            formation.RegroupFormation();
+        }
+    }
 }
 
 public class NavAgentsFormation : Formation <NavAgentFollowCursor> 
 {
     public void SetDestination(Vector3 destination)
     {
-        centerFormation = CursorElement.instance.GetPosition();
+        centerFormation = destination;
         int iterator    = 0;
 
         foreach (NavAgentFollowCursor agent in formationUnits)
@@ -120,7 +128,7 @@ public class NavAgentsFormation : Formation <NavAgentFollowCursor>
 
     public override void RegroupFormation()
     {
-        radius = 1.5f;
+        radius = 15f;
         int iterator = 0;
         foreach(NavAgentFollowCursor agent in formationUnits)
         {
@@ -147,7 +155,7 @@ public class NavAgentsFormation : Formation <NavAgentFollowCursor>
     }
 }
 
-public abstract class Formation <T>
+public abstract class Formation <T> : MonoBehaviour
 {
     protected List <T>        formationUnits  = new List<T>();
     protected List <Vector3>  unitsOffset     = new List<Vector3>();

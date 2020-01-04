@@ -35,9 +35,17 @@ public class GenerationButton : MonoBehaviour
 {
     public PlayerController playerController;
     public UnitType         unitType;
-    public TextMeshPro      countText;
+    public TextMeshProUGUI  countText;
 
-    public void GenerateFormations() => playerController.InitializeArmyAction();
+    public void GenerateFormations() 
+    {
+        if (playerController.GetChoosenFormationsCount() == GameController.Get().GetFormationsPerPlayer())
+        {
+            playerController.InitializeArmyAction();
+            GameController.Get().OnStartBattle();
+            this.gameObject.SetActive(false);
+            }
+    }
 
     public void DecrementFormation()
     {

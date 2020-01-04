@@ -37,7 +37,7 @@ public class Soldier : MonoBehaviour
     Unit                unit;
     UnitType            unitType;
     BattleDecisionMaker battleDecisionMaker;
-    Slider              slider;
+    PlayerController    owner;
     bool                readyToFight;
 
     public void     SetUnit(Unit unit)             => this.unit = unit;
@@ -49,6 +49,7 @@ public class Soldier : MonoBehaviour
     public int      GetHealth()      => unit.GetUnitData().GetBehaviour().GetHealth();
     public int      GetTotalHealth() => unit.GetUnitData().GetBehaviour().GetTotalHealth();
     public int      GetDamageDone()  => unit.GetUnitData().GetBehaviour().GetDamageDone();
+    public void     SetPlayerController(PlayerController playerController) => owner = playerController;
     public void     Reset()          
     {
         if(!(unit is null)) 
@@ -57,39 +58,32 @@ public class Soldier : MonoBehaviour
         }
     } 
         
-    public void SetReadyToFight(bool readyToFight)
-    {
-        this.readyToFight = readyToFight;
-        if(this.readyToFight)
-        {
-            Battle();
-        }
-        else
-        {
-            slider.value = 1;
-        }
-    }
-
     public void Start() 
     {
         battleDecisionMaker = new BattleDecisionMaker(this);
-        slider              = GetComponentInChildren<Slider>();
-        slider.GetComponentInParent<Canvas>().worldCamera = Camera.main;
-        slider.value        = 1; 
     }
 
     private void Update() 
     {
-        slider.value = (float) GetHealth() / (float) GetTotalHealth();
         
     }
 
     void Battle()
     {
-        if(this.readyToFight)
+        List<Soldier> targets;
+
+        if(unitType == UnitType.healer)
         {
-            Soldier target = battleDecisionMaker.ChooseSoldierToAttack(targetSoldiers);
-            if(target)
+            targets = owner.GetPlayerFormation().GetOwnSoldiers();
+        }
+        else
+        {
+            targets = owner.GetTargetSoldiers();
+        }
+
+        Soldier target = battleDecisionMaker.ChooseSoldierToAttack(targets);
+        if(target)
+        {
             StartCoroutine(Fight(target));
         }
     }

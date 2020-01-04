@@ -37,6 +37,7 @@ public class ScoreController : MonoBehaviour
     public TextMeshProUGUI playerTeamScoreText;
     public TextMeshProUGUI AITeamScoreText;
 
+    /*
     public int CalculateScoreRelativeToAI(TeamData playerTeam, TeamData AITeam)
     {
         int playerScore = 0;
@@ -68,4 +69,5 @@ public class ScoreController : MonoBehaviour
         playerTeamScoreText.text = $"Player score: {playerTeam.GetScore()}";
         AITeamScoreText.text     = $"AI score: {AITeam.GetScore()}";
     }
+    */
 }

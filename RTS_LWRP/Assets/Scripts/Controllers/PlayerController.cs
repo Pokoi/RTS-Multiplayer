@@ -40,6 +40,8 @@ public class PlayerController : MonoBehaviour
     int             choosenFormationsCount;
     ArmyAction      playerFormation;
     List<Soldier>   targetSoldiers;
+
+    FormationManager formationManager;
     
     int[] formationCount = new int[Enum.GetNames(typeof(UnitType)).Length];
     
@@ -53,7 +55,8 @@ public class PlayerController : MonoBehaviour
     public ArmyAction SetPlayerFormation(ArmyAction formation)  => playerFormation = formation;
     public void UpdateFormationCount(int value, int index)      => formationCount[index] += value;
     public void SetTargetSoldiers(List<Soldier> soldiers) => targetSoldiers = soldiers;
-
+    public List<Soldier> GetTargetSoldiers()        => targetSoldiers;
+    public FormationManager GetFormationManager()   => formationManager;
 
     public void OnUnitIsKilled(Soldier soldier)
     {
@@ -67,15 +70,17 @@ public class PlayerController : MonoBehaviour
 
         for(int i = 0; i < formationCount.Length; ++i)
         {
-            if(formationCount[i] < 0)
+            if(formationCount[i] > 0)
             {
-                ArmyFormation formation = new ArmyFormation (GameController.Get().GetUnitsPerFormation());
                 for(int j = 0; j < formationCount[i]; ++j)
                 {
-                    formation.AddSoldier(GenerateUnit((UnitType) i));
+                    ArmyFormation formation = new ArmyFormation (GameController.Get().GetUnitsPerFormation());
+                    for(int k = 0; k < GameController.Get().GetUnitsPerFormation(); ++k)
+                    {
+                        formation.AddSoldier(GenerateUnit((UnitType) i));
+                    }
+                    playerFormation.AddFormation(formation);
                 }
-
-                playerFormation.AddFormation(formation);
             }
         }
     }
@@ -85,9 +90,13 @@ public class PlayerController : MonoBehaviour
         GameObject unit = GameController.Get().unitsPool.GetUnitInstance(unitType);
         unit.SetActive(true);
         unit.GetComponent<Soldier>().SetUnitType(unitType);
-        
+        unit.GetComponent<Soldier>().SetPlayerController(this);
+
         return unit.GetComponent<Soldier>();
     }
 
-
+    private void Awake() 
+    {
+        formationManager = GetComponent<FormationManager>();    
+    }
 }

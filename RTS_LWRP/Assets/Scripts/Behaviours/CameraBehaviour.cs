@@ -33,7 +33,6 @@ using UnityEngine;
 
 public class CameraBehaviour : MonoBehaviour
 {
-
     Transform cachedTransform;
 
     private void Awake() => cachedTransform = transform;  

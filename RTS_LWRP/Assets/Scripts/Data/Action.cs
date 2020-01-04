@@ -40,6 +40,17 @@ public class ArmyAction
     
     public List<ArmyFormation> GetFormations()       => formations;
     public void AddFormation (ArmyFormation formation) => formations.Add(formation);
+    public List<Soldier> GetOwnSoldiers()
+    {
+        List<Soldier> soldiers = new List<Soldier>();
+
+        foreach (ArmyFormation formation in formations)
+        {
+            soldiers.AddRange(formation.GetSoldiers());
+        }
+
+        return soldiers;
+    }
 
 }
 
