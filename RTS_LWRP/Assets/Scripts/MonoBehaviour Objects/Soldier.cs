@@ -37,20 +37,15 @@ public class Soldier : MonoBehaviour
     Unit                unit;
     UnitType            unitType;
     BattleDecisionMaker battleDecisionMaker;
-    Locomotion          locomotion;
-    TeamData            team;
-    List<Soldier>       targetSoldiers;
     Slider              slider;
     bool                readyToFight;
 
     public void     SetUnit(Unit unit)             => this.unit = unit;
     public void     SetUnitType(UnitType unitType) => this.unitType = unitType;
-    public void     SetTeam(TeamData team)         => this.team = team;
-    public TeamData GetTeam()                      => this.team;
-
+    
     public Unit     GetUnit()        => this.unit;
     public UnitType GetUnitType()    => this.unitType;
-    public CellData GetPosition()    => unit.GetPosition();
+
     public int      GetHealth()      => unit.GetUnitData().GetBehaviour().GetHealth();
     public int      GetTotalHealth() => unit.GetUnitData().GetBehaviour().GetTotalHealth();
     public int      GetDamageDone()  => unit.GetUnitData().GetBehaviour().GetDamageDone();
@@ -67,7 +62,6 @@ public class Soldier : MonoBehaviour
         this.readyToFight = readyToFight;
         if(this.readyToFight)
         {
-            SetTargetSoldiers();
             Battle();
         }
         else
@@ -76,33 +70,18 @@ public class Soldier : MonoBehaviour
         }
     }
 
-    public void ApplyBuff()
-    {
-        List<Soldier> buffableSoldiers = team.GetSoldiers();
-
-        foreach(Soldier soldier in buffableSoldiers)
-        {
-            if (IsInBuffRange(this.GetPosition(), soldier.GetPosition()))
-            {
-                this.GetUnit().GetUnitData().GetBehaviour().ApplyBuffEfect(soldier);
-            }
-        }
-
-    }
     public void Start() 
     {
         battleDecisionMaker = new BattleDecisionMaker(this);
-        locomotion          = new Locomotion(transform);
         slider              = GetComponentInChildren<Slider>();
-        slider.GetComponentInParent<Canvas>().worldCamera = Camera.main; 
+        slider.GetComponentInParent<Canvas>().worldCamera = Camera.main;
+        slider.value        = 1; 
     }
 
     private void Update() 
     {
-        if(this.readyToFight)
-        {
-            slider.value = (float) GetHealth() / (float) GetTotalHealth();
-        }
+        slider.value = (float) GetHealth() / (float) GetTotalHealth();
+        
     }
 
     void Battle()
@@ -110,43 +89,9 @@ public class Soldier : MonoBehaviour
         if(this.readyToFight)
         {
             Soldier target = battleDecisionMaker.ChooseSoldierToAttack(targetSoldiers);
-            //locomotion.Move(target, unit.GetUnitData().GetBehaviour().GetAttackRange());
-
+            if(target)
             StartCoroutine(Fight(target));
         }
-    }
-
-    void SetTargetSoldiers()
-    {
-        if(unitType == UnitType.healer)
-        {
-            targetSoldiers = team.GetSoldiers();
-        }
-        else
-        {
-            switch(team.GetOwner())
-            {
-                case TeamData.Owners.Player:
-                    targetSoldiers = GameController.Get().GetAITeamData().GetSoldiers();
-                break;
-
-                case TeamData.Owners.AI:
-                    targetSoldiers = GameController.Get().GetPlayerTeamData().GetSoldiers();
-                break;                
-            }
-        }
-    }
-    bool IsInBuffRange(CellData soldier, CellData otherSoldier)
-    {
-        int soldierX        = soldier.GetX();
-        int soldierY        = soldier.GetY();
-        int otherSoldierX   = otherSoldier.GetX();
-        int otherSoldierY   = otherSoldier.GetY();
-
-        int deltaX = Mathf.Abs(soldierX - otherSoldierX);
-        int deltaY = Mathf.Abs(soldierY - otherSoldierY);
-
-        return ((deltaX == 1 && deltaY == 0) || (deltaX == 0 && deltaY == 1));
     }
 
     IEnumerator Fight(Soldier target)
@@ -157,7 +102,6 @@ public class Soldier : MonoBehaviour
         //while(locomotion.IsInRange(this.GetPosition(), target.GetPosition(), range))
         while(true && target != null)
         {
-            Debug.DrawLine(transform.position, target.transform.position, team.GetDebugColor(), behaviour.GetActionSpeed());
             
             behaviour.Attack(target);
             yield return new WaitForSeconds(1 - behaviour.GetActionSpeed());
@@ -174,9 +118,7 @@ public class Soldier : MonoBehaviour
                 if(target.GetHealth() <= 0)
                 {
                     target.gameObject.SetActive(false);
-                    target.GetPosition().SetEmpty(true);
-                    targetSoldiers.Remove(target);
-                    target.GetTeam().OnUnitKilled();
+                    
                     break;
                 }
             }

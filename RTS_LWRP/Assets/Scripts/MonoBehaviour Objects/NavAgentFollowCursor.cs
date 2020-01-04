@@ -1,12 +1,12 @@
 ﻿/*
- * File: XmlObjectData.cs
- * File Created: Sunday, 17th November 2019 3:55:36 pm
+ * File: NavAgentFollowCursor.cs
+ * File Created: Monday, 16th December 2019 6:13:47 pm
  * ––––––––––––––––––––––––
  * Author: Jesus Fermin, 'Pokoi', Villar  (hello@pokoidev.com)
  * ––––––––––––––––––––––––
  * MIT License
  * 
- * Copyright (c) 2019 Pokoidev
+ * Copyright (c) 2020 Pokoidev
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,9 +27,49 @@
  * SOFTWARE.
  */
 
-using System.Xml.Serialization;
 
-public class XmlObjectData
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class NavAgentFollowCursor : MonoBehaviour
 {
+    NavMeshAgent    agent;
+    Transform       cachedTransform;
+    Vector3         destination;
+   
     
+    // Start is called before the first frame update
+    void Start()
+    {
+        agent           = GetComponent<NavMeshAgent>();
+        cachedTransform = transform;
+        StartCoroutine(FollowingCursor(1));
+    }
+    
+    public void StopMovement()
+    {
+        StopCoroutine("FollowingCursor");
+        agent.isStopped = true;
+    }
+
+    public void SetDestination(Vector3 target) 
+    {
+        StopCoroutine("FollowingCursor");
+        destination = target;
+        StartCoroutine(FollowingCursor(1));
+    }
+   
+
+    IEnumerator FollowingCursor(float delta)
+    {
+        while(true)
+        {
+            agent.destination = new Vector3(destination.x, cachedTransform.position.y, destination.z);
+            yield return new WaitForSeconds(delta);
+        }
+    }
+
+
 }

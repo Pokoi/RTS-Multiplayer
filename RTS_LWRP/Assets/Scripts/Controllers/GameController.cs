@@ -33,243 +33,108 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public BoardBehaviour   boardBehaviour;
     public CameraBehaviour  cameraBehaviour;
     public UnitsPool        unitsPool;
-    public AIController     aiController;
-    public PlayerController playerController;
+    public List <PlayerController> playerControllers;
     public ScoreController  scoreController;
 
-    public GameObject FINISHTEXT;
-    public enum GameMode{PlayerVsAi, AivsAi};
-    public GameMode         currentGameMode;
-    
     static GameController   instance;
 
-    TeamData    playerTeamData;
-    TeamData    AITeamData;
     bool        callToEnd;
+    int         unitsPerFormation   = 4;
+    int         formationsPerPlayer = 3;
 
-    XmlFormationVariables       formationVariablesXMLData;
-    XmlUtilityObjectData        UtilityObjectData;
-
-    public static GameController Get()   => instance;
-    public TeamData GetPlayerTeamData()  => playerTeamData;
-    public TeamData GetAITeamData()      => AITeamData;
-
+    public static GameController Get()      => instance;
+    public int  GetUnitsPerFormation()      => unitsPerFormation;
+    public int  GetFormationsPerPlayer()    => formationsPerPlayer;
+    
     public void OnBattleEnds()
     {
         if(!callToEnd)
         {
             callToEnd = true;
 
-            foreach (Soldier soldier in playerTeamData.GetSoldiers())
-            {
-                soldier.SetReadyToFight(false);
-            }
-            foreach (Soldier soldier in AITeamData.GetSoldiers())
-            {
-                soldier.SetReadyToFight(false);
-            }
-
             // Calculate score
-            int score = scoreController.CalculateScoreRelativeToAI(playerTeamData, AITeamData);
+            //int score = scoreController.CalculateScoreRelativeToAI(playerTeamData, AITeamData);
 
-            // Comunicate score to IA
-            aiController.OnBattleEnd(playerController.GetPlayerFormation(), score); 
-
-            UtilityObjectData.ConvertArray(aiController.GetTeamFormer().GetUtility());
             
             unitsPool.Reset();
-            playerTeamData.ClearSoldiers();
-            AITeamData.ClearSoldiers();
-            
-            //-----------------------------------------------------------------------------------------------------------------------------------------------
-            // FOR AUTOMATIC KNOWLEDGE
-
-            if(currentGameMode == GameMode.AivsAi)
-            {
-                OnStartBattle();
-            }
-
-            //-----------------------------------------------------------------------------------------------------------------------------------------------
-           
         }
     }
 
     private void Awake() 
     {
-        instance = this;
-        UtilityObjectData  = new XmlUtilityObjectData();
-        unitsPool.SetMaxUnitsCount(aiController.GetMaxUnitsInTeam() << 1);
-        playerTeamData  = new PlayerTeam();
-        AITeamData      = new AITeam();
-        //Time.timeScale *= 100;
+        if(instance == null) 
+        {
+            instance = this;
+        }
+        else 
+        {
+            Destroy(this.gameObject);
+        }
+
+        unitsPool.SetMaxUnitsCount(unitsPerFormation * formationsPerPlayer);
     }
 
     private void Start() 
     {
-        CreateFormationVariablesXml();
-        ReadAlgorithimXml();
-
-        Invoke("OnPlayerDecideFormation", 1f);
-        
+         
     }
+
     public void OnPlayerDecideFormation()
     {
-        playerController.ResetChoosenUnits();
-        boardBehaviour.ResetCells();
-        // Center the camera in the player board
-        BoardData   boardData                   = BoardData.Get();
-        Vector3     playerCenterCellPosition    = boardBehaviour.GetWorldPositionOfCell(boardData.GetPlayerCellsCenterCell());
-        cameraBehaviour.CenterToPosition(playerCenterCellPosition); 
+        //Reset choosen units player controllers
+        foreach(PlayerController playerController in playerControllers)
+        {
+            playerController.ResetChoosenUnits();
+        }
 
-        // Hide all cells but player's
-        HideCells();
+        //Show canvas of decide formation
+        
     }
 
     public void OnStartBattle()
     {
-        //-----------------------------------------------------------------------------------------------------------------------------------------------
-        // FOR AUTOMATIC KNOWLEDGE
-        if(currentGameMode == GameMode.AivsAi)
-        {
-            AIController.Get().DecideFormations();
-        }
-        //-----------------------------------------------------------------------------------------------------------------------------------------------
         callToEnd = false;
-
-        // Center the camera in the board
-        BoardData   boardData               = BoardData.Get();
-        Vector3     boardCenterCellPosition = boardBehaviour.GetWorldPositionOfCell(boardData.GetBoardCenterCell());
-        cameraBehaviour.CenterToPosition(boardCenterCellPosition); 
-
-        // Show the hiden cells
-        ShowCells();
-
-        uint j = 0;
-        for(
-            j = 0; 
-            j < AIController.Get().GetPossibleActions().GetCount() && 
-            AIController.Get().GetPossibleActions().GetAt((uint)j) != playerController.GetPlayerFormation(); 
-            ++j
-            );
-
-        playerController.GetPlayerFormation().Index = j;
-
-        AIController.Get().OnBattleStart();
-
+        InitializePlayerControllersTargetSoldiers();
         
-        for(int i = 0; i < AITeamData.GetSoldiers().Count; ++i)
-        {
-            playerTeamData.GetSoldiers()[i].ApplyBuff();
-            AITeamData.GetSoldiers()[i].ApplyBuff();
-        }
+        // Center each camera in each player
         
-        foreach (Soldier soldier in playerTeamData.GetSoldiers())
-        {
-            soldier.SetReadyToFight(true);
-        }
-        foreach (Soldier soldier in AITeamData.GetSoldiers())
-        {
-            soldier.SetReadyToFight(true);
-        }
     }
 
     public void OnGameEnds()
     {
-        if(currentGameMode == GameMode.AivsAi)
-        {
-            FINISHTEXT.SetActive(true);
-         }
+        
        
-       UpdateXmL();
 
        #if UNITY_EDITOR
        UnityEditor.EditorApplication.isPlaying = false;
        #endif
     }
+ 
 
-    public void UpdateXmL()
+    private void InitializePlayerControllersTargetSoldiers()
     {
-        XmlManaging.CreateFile<XmlUtilityObjectData>(UtilityObjectData, formationVariablesXMLData.UCB1ObjectDataPath);
-    }
-
-    private void ShowCells()
-    {
-        BoardData boardData = BoardData.Get();
-        int maxColumns      = boardData.GetColumns();
-        int maxRows         = boardData.GetRows();
-
-        CellData firstNonPlayerCell = boardData.GetBoardCenterCell();
-        CellData lastCellOnBoard    = boardData.GetCellDataAt(maxColumns-1, maxRows-1);
-        --firstNonPlayerCell;
-        
-        while(firstNonPlayerCell != lastCellOnBoard)
+        for(int i = 0; i < playerControllers.Count; ++i)
         {
-            firstNonPlayerCell.GetVisibleItem().Show();
-            ++firstNonPlayerCell;
+            List<Soldier> soldiers = new List<Soldier>();
+            
+            for(int j = i+1; j<playerControllers.Count; ++j)
+            {
+                if(playerControllers[i] != playerControllers[j])
+                {
+                    foreach (Formation formation in playerControllers[j].GetPlayerFormation().GetFormations())
+                    {
+                        foreach(Soldier soldier in formation.GetSoldiers())
+                        {
+                            soldiers.Add(soldier);
+                        }
+                    }
+
+                }
+            }
+            playerControllers[i].SetTargetSoldiers(soldiers);
         }
-
-        lastCellOnBoard.GetVisibleItem().Show();
-    }
-    private void HideCells()
-    {
-        BoardData boardData = BoardData.Get();
-        int maxColumns      = boardData.GetColumns();
-        int maxRows         = boardData.GetRows();
-
-        CellData firstNonPlayerCell = boardData.GetBoardCenterCell();
-        CellData lastCellOnBoard    = boardData.GetCellDataAt(maxColumns-1, maxRows-1);
-        --firstNonPlayerCell;
-        
-        while(firstNonPlayerCell != lastCellOnBoard)
-        {
-            firstNonPlayerCell.GetVisibleItem().Hide();
-            ++firstNonPlayerCell;
-        }
-
-        lastCellOnBoard.GetVisibleItem().Hide();
-    }
-    private void CreateFormationVariablesXml()
-    {
-        string UCB1XmlFilePath           = "Assets/XMLData/";
-        string RegretMatchingXmlFilePath = "Assets/XMLData/";
-        string formationVariablesPath    = "Assets/XMLData/";
-
-        byte rows           = (byte) BoardData.Get().GetRows();
-        byte columns        = (byte) BoardData.Get().GetColumns();
-        byte maxUnitsInTeam = (byte) aiController.GetMaxUnitsInTeam();
-        byte unitTypesCount = (byte) System.Enum.GetNames(typeof(UnitType)).Length;
-        uint actionsCount   = aiController.GetPossibleActionsCount();
-
-        UCB1XmlFilePath           += $"UCB1_{rows}x{columns}_{maxUnitsInTeam}_of_{unitTypesCount}_fake.xml";
-        RegretMatchingXmlFilePath += $"RM_{rows}x{columns}_{maxUnitsInTeam}_of_{unitTypesCount}.xml";
-        formationVariablesPath    += $"FormationVariables_{rows}x{columns}_{maxUnitsInTeam}_of_{unitTypesCount}.xml";
-        
-        formationVariablesXMLData = new XmlFormationVariables
-                                                            (
-                                                                rows,
-                                                                columns,
-                                                                maxUnitsInTeam,
-                                                                unitTypesCount,
-                                                                actionsCount,
-                                                                UCB1XmlFilePath,
-                                                                RegretMatchingXmlFilePath
-                                                            );
-
-        XmlManaging.CreateFile<XmlFormationVariables>(formationVariablesXMLData, formationVariablesPath);
     }
 
-    private void ReadAlgorithimXml()
-    {
-        UtilityObjectData = XmlManaging.ReadFile<XmlUtilityObjectData>("Assets/XMLData/UCB1_2x4_2_of_4_fake.xml");
-        aiController.GetTeamFormer().SetUtility(UtilityObjectData.CastToArrayOfArray());
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------
-    // FOR AUTOMATIC KNOWLEDGE
-
-    public void SetPlayerFormation(ArmyAction formation) => playerController.SetPlayerFormation(formation);
-    
 }

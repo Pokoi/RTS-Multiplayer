@@ -29,70 +29,54 @@
 
 
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
-    int                     choosenUnitsCount;
-    static PlayerController instance;
+    public CursorElement playerCursor;
 
-    ArmyAction playerFormation;
+    int             choosenFormationsCount;
+    ArmyAction      playerFormation;
+    List<Soldier>   targetSoldiers;
     
-    public static PlayerController Get()        => instance;
-    public void UpdateChoosenUnits(int value)   => choosenUnitsCount += value;
-    public void ResetChoosenUnits()             => choosenUnitsCount = 0;
-    public int  GetChoosenUnitsCount()          => choosenUnitsCount;
-    public ArmyAction GetPlayerFormation()      => playerFormation;
-    public ArmyAction SetPlayerFormation(ArmyAction formation) => playerFormation = formation;
+    int[] formationCount = new int[Enum.GetNames(typeof(UnitType)).Length];
+    
+    public void UpdateChoosenFormations(int value)   => choosenFormationsCount += value;
+    public void ResetChoosenUnits()                  => choosenFormationsCount = 0;
+    public int  GetChoosenFormationsCount()          => choosenFormationsCount;
+    public int[] GetFormationCount()                 => formationCount;
+    public CursorElement GetPlayerCursor()           => playerCursor;
+    public ArmyAction GetPlayerFormation()           => playerFormation;
+    public ArmyAction SetPlayerFormation(ArmyAction formation)  => playerFormation = formation;
+    public void UpdateFormationCount(int value, int index)      => formationCount[index] += value;
+    public void SetTargetSoldiers(List<Soldier> soldiers) => targetSoldiers = soldiers;
 
-    public PlayerController Create()
+    public void InitializeArmyAction()
     {
-        if(instance == null)
-        {
-            instance = this;
-        }
+        playerFormation = new ArmyAction(GameController.Get().GetFormationsPerPlayer());
 
-        return instance;
-    }
-    public void AddUnitToFormation(Unit u)
-    {
-        if(playerFormation is null)
+        for(int i = 0; i < formationCount.Length; ++i)
         {
-            playerFormation = new ArmyAction(AIController.Get().GetMaxUnitsInTeam());
-        }
-
-        if(choosenUnitsCount < (playerFormation.GetUnits().Length))
-        {
-            playerFormation.GetUnits()[choosenUnitsCount] = u;
-            ++choosenUnitsCount;
-        }
-    }
-
-    public void RemoveLastUnitFromFormation()
-    {
-        if(playerFormation != null && choosenUnitsCount > 0)
-        {
-            --choosenUnitsCount;
-            playerFormation.GetUnits()[choosenUnitsCount] = null;
-        }
-    }
-
-    public void RemoveUnitFromFormation(Unit u)
-    {
-        if(playerFormation != null && choosenUnitsCount > 0)
-        {
-            Unit[] playerUnits = playerFormation.GetUnits();
-            
-            int index;
-            for (index = 0; index < playerUnits.Length && playerUnits[index] != u; ++index);
-            if(index < playerUnits.Length)
+            if(formationCount[i] < 0)
             {
-                playerUnits[index] = null;
-                --choosenUnitsCount;
+                Formation formation = new Formation (GameController.Get().GetUnitsPerFormation());
+                for(int j = 0; j < formationCount[i]; ++j)
+                {
+                    formation.AddSoldier(GenerateUnit((UnitType) i));
+                }
+
+                playerFormation.AddFormation(formation);
             }
-        }        
+        }
     }
 
-
-    private void Start() => Create();
-
+    private Soldier GenerateUnit(UnitType unitType)
+    {
+        GameObject unit = GameController.Get().unitsPool.GetUnitInstance(unitType);
+        unit.SetActive(true);
+        unit.GetComponent<Soldier>().SetUnitType(unitType);
+        
+        return unit.GetComponent<Soldier>();
+    }
 }

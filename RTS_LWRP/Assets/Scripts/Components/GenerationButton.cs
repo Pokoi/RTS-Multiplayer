@@ -29,51 +29,36 @@
 
 
 using UnityEngine;
+using TMPro;
 
 public class GenerationButton : MonoBehaviour
 {
-    public void GenerateMeleeUnit()
+    public PlayerController playerController;
+    public UnitType         unitType;
+    public TextMeshPro      countText;
+
+    public void GenerateFormations() => playerController.InitializeArmyAction();
+
+    public void DecrementFormation()
     {
-        if(AbleToGenerateMoreUnits())
-        GenerateUnit(UnitType.melee);
-    }
-
-    public void GenerateRangedUnit()
-    {
-        if(AbleToGenerateMoreUnits())
-        GenerateUnit(UnitType.ranged);
-    }
-
-    public void GenerateTankUnit()
-    {
-        if(AbleToGenerateMoreUnits())
-        GenerateUnit(UnitType.tank);
-    }
-
-    public void GenerateHealerUnit()
-    {
-        if(AbleToGenerateMoreUnits())
-        GenerateUnit(UnitType.healer);
-    }
-
-    private void GenerateUnit(UnitType unitType)
-    {
-        GameObject unit = GameController.Get().unitsPool.GetUnitInstance(unitType);
-        unit.SetActive(true);
-
-        DraggeableUnit draggeableUnitComponent = unit.GetComponent<DraggeableUnit>();
-        draggeableUnitComponent.enabled = true;
-
-        if (draggeableUnitComponent == null)
+        if(playerController.GetFormationCount()[(int) unitType] > 0)
         {
-           draggeableUnitComponent = unit.AddComponent<DraggeableUnit>();
+            playerController.UpdateFormationCount(-1, (int)unitType);
+            playerController.UpdateChoosenFormations(-1);
+            countText.text = (int.Parse(countText.text ) - 1).ToString();
         }
-        unit.GetComponent<Soldier>().SetUnitType(unitType);
-        draggeableUnitComponent.AddFollowCursorComponent();
     }
+
+    public void IncrementFormation()
+    {
+        if(AbleToGenerateMoreUnits())
+        {
+            playerController.UpdateFormationCount(+1, (int) unitType);
+            playerController.UpdateChoosenFormations(+1);
+            countText.text = (int.Parse(countText.text ) +1).ToString();
+        }
+    }
+
+   private bool AbleToGenerateMoreUnits() => playerController.GetChoosenFormationsCount() < GameController.Get().GetFormationsPerPlayer();
    
-   private bool AbleToGenerateMoreUnits()
-   {
-       return ( PlayerController.Get().GetChoosenUnitsCount() < AIController.Get().GetMaxUnitsInTeam()) && !(DraggeableUnit.draggingUnit);
-   }
 }

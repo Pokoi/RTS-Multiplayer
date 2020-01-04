@@ -47,10 +47,7 @@ public abstract class UnitBehaviour
         damageDone += damage;
     }
 
-    public void ReceiveDamage(int damage) => health -= damage;
-
-    public abstract void ApplyBuffEfect(Soldier target);
-
+    public void     ReceiveDamage(int damage)       => health -= damage;
     public void     SetHealth(int value)            => this.health = value;
     public void     SetTotalHealth (int value)      => this.totalHealth = value;
     public void     SetActionSpeed (float value)    => this.actionSpeed = value;
@@ -70,13 +67,6 @@ public abstract class UnitBehaviour
 public class HealerSoldier : UnitBehaviour
 {
     public HealerSoldier() => Reset();
-    public override void ApplyBuffEfect(Soldier target)
-    {
-        UnitBehaviour targetBehaviour = target.GetUnit().GetUnitData().GetBehaviour();
-        targetBehaviour.SetTotalHealth(targetBehaviour.GetTotalHealth() + 20);
-        targetBehaviour.SetHealth(targetBehaviour.GetTotalHealth() + 20);
-    }
-
     public override void Reset()
     {
         this.health         = this.totalHealth = 400;
@@ -90,13 +80,6 @@ public class HealerSoldier : UnitBehaviour
 public class MeleeSoldier : UnitBehaviour
 {
     public MeleeSoldier() => Reset();
-
-    public override void ApplyBuffEfect(Soldier target)
-    {
-        UnitBehaviour targetBehaviour = target.GetUnit().GetUnitData().GetBehaviour();
-        targetBehaviour.SetDamage(targetBehaviour.GetDamage() + 5);
-    }
-
     public override void Reset()
     {
         this.health         = this.totalHealth = 500;
@@ -110,14 +93,6 @@ public class MeleeSoldier : UnitBehaviour
 public class TankSoldier : UnitBehaviour
 {
     public TankSoldier() => Reset();
-
-    public override void ApplyBuffEfect(Soldier target)
-    {
-        UnitBehaviour targetBehaviour = target.GetUnit().GetUnitData().GetBehaviour();
-        targetBehaviour.SetTotalHealth(targetBehaviour.GetTotalHealth() + 50);
-        targetBehaviour.SetHealth(targetBehaviour.GetTotalHealth() + 50);
-    }
-
     public override void Reset()
     {
         this.health         = this.totalHealth = 1000;
@@ -131,12 +106,6 @@ public class TankSoldier : UnitBehaviour
 public class RangedSoldier : UnitBehaviour
 {
     public RangedSoldier() => Reset();
-
-    public override void ApplyBuffEfect(Soldier target)
-    {
-        UnitBehaviour targetBehaviour = target.GetUnit().GetUnitData().GetBehaviour();
-        targetBehaviour.SetActionSpeed(targetBehaviour.GetActionSpeed() + 0.2f);
-    }
 
     public override void Reset()
     {

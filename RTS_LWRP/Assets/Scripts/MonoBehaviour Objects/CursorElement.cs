@@ -26,7 +26,7 @@ public class CursorElement : MonoBehaviour
         
         selfTransform   = transform;
         selfAgent       = GetComponent<NavMeshAgent>();
-        StartCoroutine(SetPosition(0.5f));
+        //StartCoroutine(SetPosition(0.5f));
     }
 
     public Vector3 GetPosition() => selfTransform.position;

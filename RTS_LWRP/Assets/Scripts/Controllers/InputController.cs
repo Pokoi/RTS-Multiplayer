@@ -1,12 +1,12 @@
 ﻿/*
- * File: XmlManaging.cs
- * File Created: Sunday, 17th November 2019 1:27:31 pm
+ * File: InputController.cs
+ * File Created: Saturday, 4th January 2020 4:27:39 pm
  * ––––––––––––––––––––––––
  * Author: Jesus Fermin, 'Pokoi', Villar  (hello@pokoidev.com)
  * ––––––––––––––––––––––––
  * MIT License
  * 
- * Copyright (c) 2019 Pokoidev
+ * Copyright (c) 2020 Pokoidev
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,28 +27,36 @@
  * SOFTWARE.
  */
 
-using System.Xml.Serialization;
-using System.IO;
 
-public class XmlManaging
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class InputController : MonoBehaviour
 {
-    public static void CreateFile<T>(T objectToParse, string path)
-    {
-        XmlSerializer serializer    = new XmlSerializer(typeof(T));
-        StreamWriter  writer        = new StreamWriter(path);
+    PlayerController cachedPlayerController;
+    FormationManager cachedFormationManager;
 
-        serializer.Serialize(writer.BaseStream, objectToParse);
-        writer.Close();
+    // Start is called before the first frame update
+    void Start()
+    {
+        cachedPlayerController = GetComponent<PlayerController>();
+        cachedFormationManager = GetComponent<FormationManager>();
     }
 
-    public static T ReadFile<T>(string path)
+    // Update is called once per frame
+    void Update()
     {
-        XmlSerializer serializer = new XmlSerializer(typeof(T));
-        StreamReader  reader     = new StreamReader(path);
+        
+    }
 
-        T deserialized = (T) serializer.Deserialize(reader.BaseStream);
-        reader.Close();
+    private void MoveFormationToCursor(int index)
+    {
+        cachedFormationManager.MoveFormationToPosition(index, cachedPlayerController.GetPlayerCursor().GetPosition());
+    }
 
-        return deserialized;
+    private void MoveAllFormationToCursor()
+    {
+        cachedFormationManager.MoveAllFormationsToPosition(cachedPlayerController.GetPlayerCursor().GetPosition());
     }
 }
