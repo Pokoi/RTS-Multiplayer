@@ -135,7 +135,7 @@ public class GameController : MonoBehaviour
                     soldiers.AddRange(playerControllers[j].GetPlayerFormation().GetOwnSoldiers());
                 }
             }
-            playerControllers[i].SetTargetSoldiers(soldiers);
+            playerControllers[i].SetEnemySoldiers(soldiers);
         }
     }
 

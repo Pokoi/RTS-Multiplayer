@@ -38,6 +38,7 @@ public class Soldier : MonoBehaviour
     UnitType            unitType;
     BattleDecisionMaker battleDecisionMaker;
     PlayerController    owner;
+    Detection           detector;
     bool                readyToFight;
 
     public void     SetUnit(Unit unit)             => this.unit = unit;
@@ -45,6 +46,8 @@ public class Soldier : MonoBehaviour
     
     public Unit     GetUnit()        => this.unit;
     public UnitType GetUnitType()    => this.unitType;
+
+    public PlayerController GetOwner() => this.owner;
 
     public int      GetHealth()      => unit.GetUnitData().GetBehaviour().GetHealth();
     public int      GetTotalHealth() => unit.GetUnitData().GetBehaviour().GetTotalHealth();
@@ -61,15 +64,12 @@ public class Soldier : MonoBehaviour
     public void Start() 
     {
         battleDecisionMaker = new BattleDecisionMaker(this);
+        detector            = GetComponentInChildren<Detection>();
     }
 
-    private void Update() 
+    public void Decide()
     {
-        
-    }
-
-    void Battle()
-    {
+        StopCoroutine("Fight");
         List<Soldier> targets;
 
         if(unitType == UnitType.healer)
@@ -78,13 +78,37 @@ public class Soldier : MonoBehaviour
         }
         else
         {
-            targets = owner.GetTargetSoldiers();
+            targets = owner.GetEnemySoldiers();
+        } 
+
+        List<Soldier> sawSoldiers = new List<Soldier>();
+        sawSoldiers.AddRange(detector.GetDetectedSoldiers());
+
+        foreach(Soldier soldier in sawSoldiers)
+        {
+            if(!targets.Contains(soldier))
+            {
+                sawSoldiers.Remove(soldier);
+            }
         }
 
+        Battle(sawSoldiers);
+    }
+
+    void Battle(List<Soldier> targets)
+    {
         Soldier target = battleDecisionMaker.ChooseSoldierToAttack(targets);
         if(target)
         {
-            StartCoroutine(Fight(target));
+            if(Mathf.Abs(Vector3.Distance(this.GetComponent<Transform>().position, target.GetComponent<Transform>().position)) < unit.GetUnitData().GetBehaviour().GetAttackRange())
+            {
+                StartCoroutine(Fight(target));
+            }
+            else 
+            {
+                NavAgentFollowCursor agent = GetComponent<NavAgentFollowCursor>();
+                agent.SetDestination(target.GetComponent<Transform>().position);
+            }
         }
     }
 
@@ -93,7 +117,6 @@ public class Soldier : MonoBehaviour
         UnitBehaviour   behaviour   = unit.GetUnitData().GetBehaviour();
         int             range       = behaviour.GetAttackRange();
 
-        //while(locomotion.IsInRange(this.GetPosition(), target.GetPosition(), range))
         while(true && target != null)
         {
             
@@ -112,13 +135,25 @@ public class Soldier : MonoBehaviour
                 if(target.GetHealth() <= 0)
                 {
                     target.gameObject.SetActive(false);
+                    var formationUnits = target.GetOwner().GetFormationManager().GetFormationUnits();
+                    
+                    NavAgentFollowCursor agent = target.GetComponent<NavAgentFollowCursor>();
+
+                    foreach(NavAgentsFormation formation in formationUnits)
+                    {
+                        if(formation.GetFormationUnits().Contains(agent))
+                        {
+                            formation.RemoveAgent(agent);
+                            break;
+                        }
+                    }
                     
                     break;
                 }
             }
         }
 
-        Battle();
+        Decide();
     }
 
 }

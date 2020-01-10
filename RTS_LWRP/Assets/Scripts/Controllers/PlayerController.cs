@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
     int             choosenFormationsCount;
     ArmyAction      playerFormation;
-    List<Soldier>   targetSoldiers;
+    List<Soldier>   enemySoldiers;
 
     FormationManager formationManager;
     
@@ -54,8 +54,8 @@ public class PlayerController : MonoBehaviour
     public ArmyAction GetPlayerFormation()          => playerFormation;
     public ArmyAction SetPlayerFormation(ArmyAction formation)  => playerFormation = formation;
     public void UpdateFormationCount(int value, int index)      => formationCount[index] += value;
-    public void SetTargetSoldiers(List<Soldier> soldiers) => targetSoldiers = soldiers;
-    public List<Soldier> GetTargetSoldiers()        => targetSoldiers;
+    public void SetEnemySoldiers(List<Soldier> soldiers) => enemySoldiers = soldiers;
+    public List<Soldier> GetEnemySoldiers()        => enemySoldiers;
     public FormationManager GetFormationManager()   => formationManager;
 
     public void OnUnitIsKilled(Soldier soldier)

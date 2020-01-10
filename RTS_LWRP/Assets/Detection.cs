@@ -1,12 +1,12 @@
 ﻿/*
- * File: BattleDecisionMaker.cs
- * File Created: Wednesday, 20th November 2019 10:02:48 am
+ * File: Detection.cs
+ * File Created: Friday, 10th January 2020 4:58:44 pm
  * ––––––––––––––––––––––––
  * Author: Jesus Fermin, 'Pokoi', Villar  (hello@pokoidev.com)
  * ––––––––––––––––––––––––
  * MIT License
  * 
- * Copyright (c) 2019 Pokoidev
+ * Copyright (c) 2020 Pokoidev
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,40 +32,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleDecisionMaker 
+public class Detection : MonoBehaviour
 {
-    Soldier selfSoldier;
-    byte    remainingHealthWeight  = 1;
-    byte    damageDoneWeight       = 2;
-    byte    distanceWeight         = 1;
+    Soldier cachedSoldier;   
+    List<Soldier> detectedSoldiers = new List<Soldier>();
 
-    public BattleDecisionMaker(Soldier selfSoldier) => this.selfSoldier = selfSoldier;
+    public List<Soldier> GetDetectedSoldiers() => detectedSoldiers;
 
-    public Soldier ChooseSoldierToAttack(List<Soldier> soldiers)
+    private void Start() => cachedSoldier = GetComponentInParent<Soldier>();
+    
+    private void OnTriggerEnter(Collider other) 
     {
-        int bestHeuristic   = int.MinValue;
-        Soldier bestSoldier = null;
-
-        foreach(Soldier soldier in soldiers)
+        Soldier otherSoldier = other.GetComponentInParent<Soldier>();
+        
+        if(otherSoldier != null && !detectedSoldiers.Contains(otherSoldier))
         {
-            if(soldier.isActiveAndEnabled)
-            {
-                int soldierHeuristic = CalculateHeuristics(soldier);
-                if (soldierHeuristic > bestHeuristic)
-                {
-                    bestHeuristic = soldierHeuristic;
-                    bestSoldier   = soldier;
-                }
-            }
+            detectedSoldiers.Add(otherSoldier);
         }
 
-        return bestSoldier;
+        cachedSoldier.Decide();
     }
-    private int CalculateHeuristics( Soldier soldier)
+
+    private void OnTriggerExit(Collider other) 
     {
-       return (int) (remainingHealthWeight  *  (soldier.GetHealth() / soldier.GetTotalHealth()) +
-                     damageDoneWeight       * soldier.GetDamageDone() +
-                     distanceWeight         * (Vector3.Distance(selfSoldier.transform.position, soldier.transform.position))
-                    );
+        Soldier otherSoldier = other.GetComponentInParent<Soldier>();
+        
+        if(otherSoldier != null && detectedSoldiers.Contains(otherSoldier))
+        {
+            detectedSoldiers.Remove(otherSoldier);
+        }
+
+        cachedSoldier.Decide();
     }
 }

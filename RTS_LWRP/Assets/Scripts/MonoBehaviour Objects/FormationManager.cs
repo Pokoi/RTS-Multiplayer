@@ -107,6 +107,8 @@ public class FormationManager : Formation <NavAgentsFormation>
 
 public class NavAgentsFormation : Formation <NavAgentFollowCursor> 
 {
+    public void RemoveAgent(NavAgentFollowCursor agent) => formationUnits.Remove(agent);
+    
     public void SetDestination(Vector3 destination)
     {
         centerFormation = destination;
@@ -166,6 +168,8 @@ public abstract class Formation <T> : MonoBehaviour
     public bool     IsEmpty()            => formationUnits.Count == 0;
     public abstract void CalculateCenter();
     public abstract void RegroupFormation();
+
+    public List <T> GetFormationUnits() => formationUnits;
 
     protected Vector3 GetVertex (int totalCount, int index)
     {
