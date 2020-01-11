@@ -38,13 +38,16 @@ public class NavAgentFollowCursor : MonoBehaviour
     NavMeshAgent    agent;
     Transform       cachedTransform;
     Vector3         destination;
+    AnimationController animationController;
    
     
     // Start is called before the first frame update
     void Start()
     {
-        agent           = GetComponent<NavMeshAgent>();
-        cachedTransform = transform;
+        agent               = GetComponent<NavMeshAgent>();
+        cachedTransform     = transform;
+        animationController = GetComponent<AnimationController>();
+
         StartCoroutine(FollowingCursor(1));
     }
     
@@ -58,6 +61,7 @@ public class NavAgentFollowCursor : MonoBehaviour
     {
         StopCoroutine("FollowingCursor");
         destination = target;
+        animationController.Walk();
         StartCoroutine(FollowingCursor(1));
     }
    
@@ -67,6 +71,16 @@ public class NavAgentFollowCursor : MonoBehaviour
         while(true)
         {
             agent.destination = new Vector3(destination.x, cachedTransform.position.y, destination.z);
+
+            float distance = agent.remainingDistance;
+            if  (
+                    distance != Mathf.Infinity &&
+                    agent.pathStatus == NavMeshPathStatus.PathComplete &&
+                    agent.remainingDistance <= 0.1f
+                )
+                {
+                    animationController.Idle();
+                }
             yield return new WaitForSeconds(delta);
         }
     }

@@ -58,11 +58,6 @@ public class PlayerController : MonoBehaviour
     public List<Soldier> GetEnemySoldiers()        => enemySoldiers;
     public FormationManager GetFormationManager()   => formationManager;
 
-    public void OnUnitIsKilled(Soldier soldier)
-    {
-
-    }
-
 
     public void InitializeArmyAction()
     {

@@ -40,6 +40,7 @@ public class Soldier : MonoBehaviour
     PlayerController    owner;
     Detection           detector;
     bool                readyToFight;
+    AnimationController animationController;
 
     public void     SetUnit(Unit unit)             => this.unit = unit;
     public void     SetUnitType(UnitType unitType) => this.unitType = unitType;
@@ -65,6 +66,7 @@ public class Soldier : MonoBehaviour
     {
         battleDecisionMaker = new BattleDecisionMaker(this);
         detector            = GetComponentInChildren<Detection>();
+        animationController = GetComponent<AnimationController>();
     }
 
     public void Decide()
@@ -102,6 +104,7 @@ public class Soldier : MonoBehaviour
         {
             if(Mathf.Abs(Vector3.Distance(this.GetComponent<Transform>().position, target.GetComponent<Transform>().position)) < unit.GetUnitData().GetBehaviour().GetAttackRange())
             {
+                animationController.Attack();
                 StartCoroutine(Fight(target));
             }
             else 

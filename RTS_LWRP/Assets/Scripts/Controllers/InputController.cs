@@ -34,10 +34,92 @@ using UnityEngine;
 
 public class InputController : MonoBehaviour
 {
+
+    string [] axisNames = 
+    {
+        "Left Stick Horizontal 1",
+        "Left Stick Horizontal 2",
+        "Left Stick Vertical 1",
+        "Left Stick Vertical 2",
+        "Right Stick Horizontal 1",
+        "Right Stick Horizontal 2",
+        "Right Stick Vertical 1",
+        "Right Stick Vertical 2"
+    };
+
+    string [] ButtonNames = 
+    {
+        "Cross 1",
+        "Cross 2",
+        "Circle 1",
+        "Circle 2",
+        "Square 1",
+        "Square 2",
+        "Triangle 1",
+        "Triangle 2",
+        "L1 1",
+        "L1 2",
+        "L2 1",
+        "L2 2",
+        "R1 1",
+        "R1 2",
+        "R2 1",
+        "R2 2",
+        "Start 1",
+        "Start 2"
+    };
+
+    public enum Axis 
+    {
+        LeftStick_Horizontal_Joystick1,
+        LeftStick_Horizontal_Joystick2,
+        LeftStick_Vertical_Joystick1,
+        LeftStick_Vertical_Joystick2,
+        RightStick_Horizontal_Joystick1,
+        RightStick_Horizontal_Joystick2,
+        RightStick_Vertical_Joystick1,
+        RightStick_Vertical_Joystick2
+    }
+
+    public enum Buttons
+    {
+        Cross_Joystick1,
+        Cross_Joystick2, 
+        Circle_Joystick1,
+        Circle_Joystick2,
+        Square_Joystick1,
+        Square_Joystick2,
+        Triangle_Joystick1,
+        Triangle_Joystick2,
+        L1_Joystick1,
+        L1_Joystick2,
+        L2_Joystick1,
+        L2_Joystick2,
+        R1_Joystick1,
+        R1_Joystick2,
+        R2_Joystick1,
+        R2_Joystick2,
+        Start_Joystick1,
+        Start_Joystick2
+    }
+
+    [SerializeField] private Buttons centerCameraInFirstFormationInput;
+    [SerializeField] private Buttons centerCameraInSecondFormationInput;
+    [SerializeField] private Buttons centerCameraInThirdFormationInput;
+    [SerializeField] private Buttons centerCameraInFormationsCenterInput;
+    [SerializeField] private Buttons moveFirstFormationToCursorInput;
+    [SerializeField] private Buttons moveSecondFormationToCursorInput;
+    [SerializeField] private Buttons moveThirdFormationToCursorInput;
+    [SerializeField] private Buttons moveAllFormationsToCursorInput;
+    [SerializeField] private Axis    moveCursorHorizontalInput;
+    [SerializeField] private Axis    moveCursorVerticalInput;
+    [SerializeField] private Axis    moveCameraHorizontalInput;
+    [SerializeField] private Axis    moveCameraVerticalInput;
+    
+
     PlayerController cachedPlayerController;
     FormationManager cachedFormationManager;
-
-    int formationIndexSelected;
+    int              formationIndexSelected;
 
     // Start is called before the first frame update
     void Start()
@@ -49,42 +131,73 @@ public class InputController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if LT is being pressed
-        //CenterCameraInFormation(0);
+        
+             if (Input.GetKey(ButtonNames[(int) centerCameraInFirstFormationInput]  )   )
+        {
+            CenterCameraInFormation(0);
+        }
 
-        //else if RT is being pressed
-        //CenterCameraInFormation(1);
+        else if (Input.GetKey(ButtonNames[(int) centerCameraInSecondFormationInput] )   )
+        {
+            CenterCameraInFormation(1);
+        }
 
-        //else if LB is being pressed
-        //CenterCameraInFormation(2);
+        else if (Input.GetKey(ButtonNames[(int) centerCameraInThirdFormationInput]  )   )
+        {
+            CenterCameraInFormation(2);
+        }
 
-        //else if RB is being pressed
-        //CenterCameraInFormation(-1);
+        else if (Input.GetKey(ButtonNames[(int) centerCameraInFormationsCenterInput])   )
+        {
+            CenterCameraInFormation(-1);
+        }
 
-        //else if LT is released 
-        //     or RT is released
-        //     or LB is released
-        //     or RB is released
-        //CenterCameraInCursor();
+        else if (
+                    Input.GetKeyUp(ButtonNames[(int) centerCameraInFirstFormationInput]  )  ||
+                    Input.GetKeyUp(ButtonNames[(int) centerCameraInSecondFormationInput] )  ||
+                    Input.GetKeyUp(ButtonNames[(int) centerCameraInThirdFormationInput]  )  ||
+                    Input.GetKeyUp(ButtonNames[(int) centerCameraInFormationsCenterInput]) 
+                )
+        {
+            CenterCameraInCursor();
+        }
 
-        //else if triangle is pressed
-        //MoveFormationToCursor(0);
+        else if(Input.GetKey(ButtonNames[(int) moveFirstFormationToCursorInput]))
+        {
+            MoveFormationToCursor(0);
+        }
 
-        //else if circle is pressed
-        //MoveFormationToCursor(1);
+        else if(Input.GetKey(ButtonNames[(int) moveSecondFormationToCursorInput]))
+        {
+            MoveFormationToCursor(1);
+        }
 
-        //else if cross is pressed
-        //MoveFormationToCursor(2);
+        else if(Input.GetKey(ButtonNames[(int) moveThirdFormationToCursorInput]))
+        {
+            MoveFormationToCursor(2);
+        }
 
-        //else if square is pressed
-        //MoveAllFormationToCursor();
+        else if(Input.GetKey(ButtonNames[(int) moveAllFormationsToCursorInput]))
+        {
+            MoveAllFormationToCursor();
+        }
 
-        //if LJoyStick is moving
-        //MoveCursor();
 
-        //if RJoyStick is moving
-        //RotateCamera();
+        Vector3 cursorVector = new Vector3  (
+                                                Input.GetAxis(axisNames[(int) moveCursorHorizontalInput]),
+                                                0,
+                                                Input.GetAxis(axisNames[(int) moveCursorVerticalInput])
+                                            );
 
+        Vector3 cameraVector = new Vector3  (
+                                                Input.GetAxis(axisNames[(int) moveCameraHorizontalInput]),
+                                                0,
+                                                Input.GetAxis(axisNames[(int) moveCameraVerticalInput])
+                                            );
+                                    
+
+        MoveCursor(cursorVector);
+        MoveCamera(cameraVector);
     }
 
     private void MoveFormationToCursor(int index)
@@ -113,16 +226,25 @@ public class InputController : MonoBehaviour
         cachedPlayerController.GetPlayerCamera().CenterToPosition(center);
     }
 
-    private void MoveCursor()
+    private void MoveCursor(Vector3 delta)
     {
+        float cursorSpeed = 2.5f;
         Vector3 position = cachedPlayerController.GetPlayerCursor().GetPosition();
 
-        //position +=
+        position += delta * cursorSpeed * Time.deltaTime;
+
+        cachedPlayerController.GetPlayerCursor().SetDestination(position);
     }
 
-    private void MoveCamera()
+    private void MoveCamera(Vector3 delta)
     {
+        CameraBehaviour camera =  cachedPlayerController.GetPlayerCamera();
+       
+        float cameraSpeed = 5f;
+        Vector3 position = cachedPlayerController.GetPlayerCursor().GetPosition();
+        position += delta * cameraSpeed * Time.deltaTime;
 
+        camera.CenterToPosition(position);
     }
 
     private void CenterCameraInCursor()
