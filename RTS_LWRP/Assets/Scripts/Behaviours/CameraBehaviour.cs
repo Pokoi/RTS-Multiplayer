@@ -39,7 +39,7 @@ public class CameraBehaviour : MonoBehaviour
     
     public void CenterToPosition(Vector3 targetPosition)
     {
-        Vector3 desiredPosition = new Vector3 (targetPosition.x, cachedTransform.position.y, cachedTransform.position.z);
+        Vector3 desiredPosition = new Vector3 (targetPosition.x, cachedTransform.position.y, targetPosition.z);
         StartCoroutine("InterpolatedMovement", desiredPosition);
     }
 

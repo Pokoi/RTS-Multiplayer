@@ -803,6 +803,7 @@ GameObject:
   - component: {fileID: 5237505845930858868}
   - component: {fileID: 5237505845930858871}
   - component: {fileID: 5237505845930858870}
+  - component: {fileID: 8811402834892829283}
   m_Layer: 0
   m_Name: Mage
   m_TagString: Untagged
@@ -890,6 +891,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3dcbbc657a8084712b54e64f09b78c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8811402834892829283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4291568461298852311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7caff1499356477da5bfc586c89a109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4302907972891563442

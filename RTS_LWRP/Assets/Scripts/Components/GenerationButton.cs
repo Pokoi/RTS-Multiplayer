@@ -41,10 +41,9 @@ public class GenerationButton : MonoBehaviour
     {
         if (playerController.GetChoosenFormationsCount() == GameController.Get().GetFormationsPerPlayer())
         {
-            playerController.InitializeArmyAction();
-            GameController.Get().OnStartBattle();
             this.gameObject.SetActive(false);
-            }
+            GameController.Get().OnPlayerReady();
+        }
     }
 
     public void DecrementFormation()

@@ -37,7 +37,7 @@ public class AnimationController : MonoBehaviour
     Animator cachedAnimator;
 
     // Start is called before the first frame update
-    void Start() => cachedAnimator = GetComponent<Animator>();
+    void Awake() => cachedAnimator = GetComponent<Animator>();
 
     public void Walk() => cachedAnimator.SetTrigger("walk");
     public void Idle() => cachedAnimator.SetTrigger("idle");

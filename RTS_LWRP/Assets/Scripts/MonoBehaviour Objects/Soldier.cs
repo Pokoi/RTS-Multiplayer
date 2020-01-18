@@ -62,8 +62,9 @@ public class Soldier : MonoBehaviour
         }
     } 
         
-    public void Start() 
+    public void Awake() 
     {
+        unit                = new Unit(new UnitData(this.unitType));
         battleDecisionMaker = new BattleDecisionMaker(this);
         detector            = GetComponentInChildren<Detection>();
         animationController = GetComponent<AnimationController>();
@@ -86,15 +87,18 @@ public class Soldier : MonoBehaviour
         List<Soldier> sawSoldiers = new List<Soldier>();
         sawSoldiers.AddRange(detector.GetDetectedSoldiers());
 
-        foreach(Soldier soldier in sawSoldiers)
+        if(targets.Count > 0)
         {
-            if(!targets.Contains(soldier))
+            foreach(Soldier soldier in targets)
             {
-                sawSoldiers.Remove(soldier);
+                if( targets == null || !targets.Contains(soldier))
+                {
+                    sawSoldiers.Remove(soldier);
+                }
             }
-        }
 
-        Battle(sawSoldiers);
+            Battle(sawSoldiers);
+        }
     }
 
     void Battle(List<Soldier> targets)

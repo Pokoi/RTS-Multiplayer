@@ -24,13 +24,13 @@ public class CursorElement : MonoBehaviour
     {
         StopCoroutine("SetPosition");
         destination = target;
-        StartCoroutine(SetPosition(0.5f));
+        StartCoroutine(SetPosition(0f));
     }
     IEnumerator SetPosition(float delta)
     {
         while (true)
         {
-            selfAgent.destination = new Vector3 (destination.x, selfTransform.position.y, destination.y);
+            selfAgent.destination = new Vector3 (destination.x, selfTransform.position.y, destination.z);
             yield return new WaitForSeconds(delta);
         }
     }

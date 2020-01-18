@@ -1654,6 +1654,7 @@ GameObject:
   - component: {fileID: 4346892533120123335}
   - component: {fileID: 4346892533120123353}
   - component: {fileID: 4346892533120123354}
+  - component: {fileID: -5736939226305149577}
   m_Layer: 0
   m_Name: Melee
   m_TagString: Untagged
@@ -1743,6 +1744,18 @@ NavMeshAgent:
   m_BaseOffset: -0.53
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &-5736939226305149577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5724830130468074381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7caff1499356477da5bfc586c89a109, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5818875571323870845
 GameObject:
   m_ObjectHideFlags: 0

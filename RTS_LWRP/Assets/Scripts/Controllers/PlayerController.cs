@@ -69,12 +69,19 @@ public class PlayerController : MonoBehaviour
             {
                 for(int j = 0; j < formationCount[i]; ++j)
                 {
-                    ArmyFormation formation = new ArmyFormation (GameController.Get().GetUnitsPerFormation());
+                    ArmyFormation formation         = new ArmyFormation (GameController.Get().GetUnitsPerFormation());
+                    NavAgentsFormation navFormation = this.gameObject.AddComponent<NavAgentsFormation>();
+
                     for(int k = 0; k < GameController.Get().GetUnitsPerFormation(); ++k)
                     {
-                        formation.AddSoldier(GenerateUnit((UnitType) i));
+                        Soldier new_soldier = GenerateUnit((UnitType) i);
+                        formation.AddSoldier(new_soldier);
+                        navFormation.AddAgent(new_soldier.GetComponent<NavAgentFollowCursor>());
                     }
+
                     playerFormation.AddFormation(formation);
+                    GetFormationManager().AddFormation(navFormation);
+                    
                 }
             }
         }

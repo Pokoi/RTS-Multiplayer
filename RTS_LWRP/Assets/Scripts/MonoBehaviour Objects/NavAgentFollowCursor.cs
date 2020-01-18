@@ -42,13 +42,11 @@ public class NavAgentFollowCursor : MonoBehaviour
    
     
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         agent               = GetComponent<NavMeshAgent>();
         cachedTransform     = transform;
         animationController = GetComponent<AnimationController>();
-
-        StartCoroutine(FollowingCursor(1));
     }
     
     public void StopMovement()

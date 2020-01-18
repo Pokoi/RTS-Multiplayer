@@ -45,6 +45,7 @@ public class GameController : MonoBehaviour
     int         unitsPerFormation   = 4;
     int         formationsPerPlayer = 3;
     int         callsToStart        = 0;
+    int         playersReady        = 0;
 
     public static GameController Get()      => instance;
     public int  GetUnitsPerFormation()      => unitsPerFormation;
@@ -78,9 +79,20 @@ public class GameController : MonoBehaviour
         unitsPool.SetMaxUnitsCount(unitsPerFormation * formationsPerPlayer * playerControllers.Count);
     }
 
-    private void Start() 
-    {
-    }
+   public void OnPlayerReady()
+   {
+       ++playersReady;
+
+       if(playersReady == playerControllers.Count)
+       {
+           foreach(PlayerController controller in playerControllers)
+           {
+               controller.InitializeArmyAction();
+           }
+
+           OnStartBattle();
+       }
+   }
 
     public void OnPlayerDecideFormation()
     {
@@ -97,16 +109,18 @@ public class GameController : MonoBehaviour
 
     public void OnStartBattle()
     {
-        ++callsToStart;
-        if(callsToStart >= playerControllers.Count)
+        callToEnd = false;
+
+        InitializePlayerControllersTargetSoldiers();
+        
+        decideFormationCanvas.SetActive(false);
+
+        InitializeUnitsPositionsInWorld();
+        
+
+        foreach (PlayerController playerController in playerControllers)
         {
-            callToEnd = false;
-
-            InitializePlayerControllersTargetSoldiers();
-            
-            decideFormationCanvas.SetActive(false);
-
-            InitializeUnitsPositionsInWorld();
+            playerController.GetComponent<InputController>().SetInGame(true);
         }
         
     }
@@ -146,10 +160,16 @@ public class GameController : MonoBehaviour
         {
             Vector3 point = originPoints[iterator].position;
 
-            FormationManager formationManager = playerController.GetFormationManager();
-            formationManager.RegroupEachFormation();
+            foreach (Soldier soldier in playerController.GetPlayerFormation().GetOwnSoldiers())
+            {
+                soldier.GetComponent<Transform>().position = point;
+            }
+            
+            
+            /*FormationManager formationManager = playerController.GetFormationManager();
+            formationManager.CalculateCenter();
             formationManager.SetCenterOfFormation(point);
-            formationManager.RegroupFormation();
+            formationManager.RegroupFormation();*/
 
             ++iterator;
         }

@@ -94,7 +94,15 @@ public class FormationManager : Formation <NavAgentsFormation>
             ++iterator;
         }
     }
-    public Vector3 GetCenterOfFormation(int index) => formationUnits[index].GetCenterFormation();
+    public Vector3 GetCenterOfFormation(int index) 
+    {
+        if(formationUnits[index] != null)
+        {
+            return formationUnits[index].GetCenterFormation();
+        }
+
+        return centerFormation;
+    }
     public void SetCenterOfFormation(Vector3 center) => centerFormation = center;
     public void RegroupEachFormation()
     {
@@ -109,6 +117,8 @@ public class NavAgentsFormation : Formation <NavAgentFollowCursor>
 {
     public void RemoveAgent(NavAgentFollowCursor agent) => formationUnits.Remove(agent);
     
+    public void AddAgent(NavAgentFollowCursor agent) => formationUnits.Add(agent);
+
     public void SetDestination(Vector3 destination)
     {
         centerFormation = destination;
